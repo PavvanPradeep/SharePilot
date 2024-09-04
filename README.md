@@ -8,7 +8,7 @@ Key Features:
 
 - Server-Client Architecture: The server listens for incoming connections on port 8080, and the client connects to this server to initiate the file transfer. The server handles multiple connections concurrently, making it suitable for various use cases.
 
-- Simple Command-Line Interface: The client is operated via a straightforward command-line interface. Just run the client with the file path as an argument, and SharePilot takes care of sending the file to the designated server.
+- Progress Tracking: Real-time progress tracking is included on both the client and server sides, allowing users to monitor the transfer status and remaining time.
 
 Example Usage:
 go run client.go <name_of_file>

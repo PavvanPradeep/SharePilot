@@ -1,7 +1,8 @@
-package client
+package main
 
 import (
 	"bufio"
+	"fmt"
 	"io"
 	"log"
 	"net"
@@ -13,6 +14,24 @@ const (
 	serverAddr = "localhost:8080"
 	bufferSize = 1024
 )
+
+type ProgressWriter struct {
+	writer    io.Writer
+	totalSize int64
+	bytesSent int64
+}
+
+func (pw *ProgressWriter) Write(p []byte) (int, error) {
+	n, err := pw.writer.Write(p)
+	pw.bytesSent += int64(n)
+	pw.printProgress()
+	return n, err
+}
+
+func (pw *ProgressWriter) printProgress() {
+	percentage := float64(pw.bytesSent) / float64(pw.totalSize) * 100
+	fmt.Printf("\rProgress: %.2f%%", percentage)
+}
 
 func main() {
 	if len(os.Args) < 2 {
@@ -55,11 +74,12 @@ func main() {
 
 	writer.Flush()
 
-	// Send file content
-	_, err = io.Copy(conn, file)
+	// Send file content with progress tracking
+	progressWriter := &ProgressWriter{writer: conn, totalSize: size}
+	_, err = io.Copy(progressWriter, file)
 	if err != nil {
 		log.Fatalf("Error sending file data: %s", err)
 	}
 
-	log.Println("File sent successfully")
+	fmt.Println("\nFile sent successfully")
 }

@@ -1,7 +1,8 @@
-package server
+package main
 
 import (
 	"bufio"
+	"fmt"
 	"io"
 	"log"
 	"net"
@@ -10,7 +11,7 @@ import (
 )
 
 const (
-	port = ":8080"
+	port       = ":8080"
 	bufferSize = 1024
 )
 
@@ -45,7 +46,7 @@ func handleConnection(conn net.Conn) {
 		return
 	}
 	// Removes the newline character from the end of the file name
-	fileName = fileName[:len(fileName)-1] 
+	fileName = fileName[:len(fileName)-1]
 
 	// Read file size
 	fileSizeStr, err := reader.ReadString('\n')
@@ -59,7 +60,7 @@ func handleConnection(conn net.Conn) {
 		log.Printf("Error parsing file size: %s", err)
 		return
 	}
-	
+
 	log.Printf("File name: %s", fileName)
 	log.Printf("File size: %d bytes", fileSize)
 
@@ -91,9 +92,14 @@ func handleConnection(conn net.Conn) {
 				return
 			}
 			totalBytes += int64(bytesRead)
-			log.Printf("Received %d bytes", bytesRead)
+			printProgress(totalBytes, fileSize)
 		}
 	}
 
 	log.Printf("File received successfully, total bytes: %d", totalBytes)
+}
+
+func printProgress(bytesReceived, totalSize int64) {
+	percentage := float64(bytesReceived) / float64(totalSize) * 100
+	fmt.Printf("\rProgress: %.2f%%", percentage)
 }
